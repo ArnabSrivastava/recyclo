@@ -8,6 +8,7 @@ Recyclo is a circular fashion platform connecting household textile pickups, age
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Zustand](https://img.shields.io/badge/Zustand-5.0-443e38?style=for-the-badge&logo=react&logoColor=white)
 ![ESLint](https://img.shields.io/badge/ESLint-9.0-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)
+![License](https://img.shields.io/badge/License-Recyclo%20Textile-blue?style=for-the-badge)
 
 ---
 
@@ -75,4 +76,4 @@ Recyclo provides an end-to-end digital infrastructure for sustainable textile re
 
 ## License
 
-This project is licensed under Recyclo.
+This project is licensed under the terms of the MIT License — see the [LICENSE](LICENSE) file for details. Copyright (c) 2026 **Recyclo Textile Platform**.
