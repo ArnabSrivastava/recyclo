@@ -1,7 +1,8 @@
 "use client"
 
-import React, { useState, useMemo, useEffect } from "react"
+import React, { useState, useMemo, useEffect, Suspense } from "react"
 import Link from "next/link"
+import { useSearchParams, useRouter } from "next/navigation"
 import {
   ShoppingBag,
   Sparkles,
@@ -29,11 +30,16 @@ import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
 import { useRecycloStore } from "@/lib/store/use-recyclo-store"
 import { FabricMaterial } from "@/lib/types"
+import { useFuseSearch } from "@/hooks/use-fuse-search"
+import { PRODUCT_FUSE_KEYS } from "@/lib/fuse-search"
 
-export default function UpcycledStorePage() {
+function UpcycledStoreContent() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const urlQuery = searchParams.get('q') || searchParams.get('search') || searchParams.get('keyword') || ''
+
   const { products, addToCart } = useRecycloStore()
 
-  // Filter States
   const [selectedGender, setSelectedGender] = useState<string>("ALL")
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL")
   const [selectedSize, setSelectedSize] = useState<string>("ALL")
@@ -42,10 +48,40 @@ export default function UpcycledStorePage() {
   const [selectedPriceRange, setSelectedPriceRange] = useState<string>("ALL")
   const [minRecycledPercent, setMinRecycledPercent] = useState<number>(0)
   const [inStockOnly, setInStockOnly] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
+  const [prevUrlQuery, setPrevUrlQuery] = useState(urlQuery)
+  const [overrideQuery, setOverrideQuery] = useState<string | null>(null)
+
+  if (urlQuery !== prevUrlQuery) {
+    setPrevUrlQuery(urlQuery)
+    setOverrideQuery(null)
+  }
+
+  const searchQuery = overrideQuery !== null ? overrideQuery : urlQuery
+  const setSearchQuery = (val: string) => setOverrideQuery(val)
+  const fuzzyThreshold = 0.4
   const [sortBy, setSortBy] = useState<string>("FEATURED")
 
   const [addedProductId, setAddedProductId] = useState<string | null>(null)
+
+  const {
+    results: fuseMatchedProducts,
+    fuseResults,
+    hasQuery: isFuzzySearchActive,
+  } = useFuseSearch(products, searchQuery, {
+    keys: PRODUCT_FUSE_KEYS,
+    threshold: fuzzyThreshold,
+  })
+
+  const productFuseScoreMap = useMemo(() => {
+    const map = new Map<string, number>()
+    fuseResults.forEach((res) => {
+      if (res.item && res.score !== undefined) {
+        const similarity = Math.round((1 - res.score) * 100)
+        map.set(res.item.id, similarity)
+      }
+    })
+    return map
+  }, [fuseResults])
 
   const genderOptions = ["ALL", "Men", "Women", "Unisex"]
 
@@ -84,47 +120,31 @@ export default function UpcycledStorePage() {
   ]
 
   const filteredAndSortedProducts = useMemo(() => {
-    return products
+    const sourceList = isFuzzySearchActive ? fuseMatchedProducts : products
+
+    return sourceList
       .filter((p) => {
-        // Gender Filter
         const matchesGender =
           selectedGender === "ALL" ||
           p.gender === selectedGender ||
           (p.gender === "Unisex" && selectedGender !== "ALL")
 
-        // Category Filter
         const matchesCat =
           selectedCategory === "ALL" || (p.category as string) === selectedCategory
 
-        // Garment Size Filter
         const matchesSize =
           selectedSize === "ALL" ||
           p.size === selectedSize ||
           (p.size === "Free Size" && selectedSize !== "ALL")
 
-        // Search Query
-        const q = searchQuery.toLowerCase().trim()
-        const matchesQuery =
-          !q ||
-          p.name.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          p.tagline.toLowerCase().includes(q) ||
-          p.material.toLowerCase().includes(q) ||
-          p.color.toLowerCase().includes(q) ||
-          p.sku.toLowerCase().includes(q) ||
-          (p.batchId && p.batchId.toLowerCase().includes(q))
-
-        // Fabric Material Filter
         const matchesMaterial =
           selectedMaterial === "ALL" ||
           p.material.toLowerCase() === selectedMaterial.toLowerCase()
 
-        // Color Filter
         const matchesColor =
           selectedColor === "ALL" ||
           p.color.toLowerCase().includes(selectedColor.toLowerCase())
 
-        // Price Range Filter
         let matchesPrice = true
         if (selectedPriceRange === "UNDER_500") matchesPrice = p.price < 500
         else if (selectedPriceRange === "500_1000")
@@ -134,18 +154,15 @@ export default function UpcycledStorePage() {
         else if (selectedPriceRange === "ABOVE_2000")
           matchesPrice = p.price > 2000
 
-        // Recycled Content Percentage Filter
         const matchesRecycled =
           p.recycledContentPercentage >= minRecycledPercent
 
-        // In-Stock Filter
         const matchesStock = !inStockOnly || p.stock > 0
 
         return (
           matchesGender &&
           matchesCat &&
           matchesSize &&
-          matchesQuery &&
           matchesMaterial &&
           matchesColor &&
           matchesPrice &&
@@ -154,6 +171,9 @@ export default function UpcycledStorePage() {
         )
       })
       .sort((a, b) => {
+        if (isFuzzySearchActive && sortBy === "FEATURED") {
+          return 0 // Maintain Fuse.js relevance ranking score!
+        }
         if (sortBy === "PRICE_LOW") return a.price - b.price
         if (sortBy === "PRICE_HIGH") return b.price - a.price
         if (sortBy === "RECYCLED_HIGH")
@@ -165,10 +185,11 @@ export default function UpcycledStorePage() {
       })
   }, [
     products,
+    fuseMatchedProducts,
+    isFuzzySearchActive,
     selectedGender,
     selectedCategory,
     selectedSize,
-    searchQuery,
     selectedMaterial,
     selectedColor,
     selectedPriceRange,
@@ -300,24 +321,38 @@ export default function UpcycledStorePage() {
           {/* Row 1: Search Bar & Department (Gender) Pills */}
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             {/* Search Input */}
-            <div className="relative w-full lg:w-96">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                const trimmed = searchQuery.trim()
+                if (trimmed) {
+                  router.push(`/store?q=${encodeURIComponent(trimmed)}`)
+                } else {
+                  router.push('/store')
+                }
+              }}
+              className="relative w-full lg:w-96"
+            >
               <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search garments by keyword, fabric, color, or batch..."
+                placeholder="Search garments by keyword, fabric, color..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-10 rounded-none border-2 border-border pl-9 text-xs"
+                className="h-10 rounded-none border-2 border-border pl-9 pr-8 text-xs font-medium"
               />
               {searchQuery && (
                 <button
                   type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  onClick={() => {
+                    setSearchQuery("")
+                    router.push('/store')
+                  }}
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
                 >
                   <X className="size-3.5" />
                 </button>
               )}
-            </div>
+            </form>
 
             {/* Gender / Department Tabs */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0">
@@ -608,9 +643,12 @@ export default function UpcycledStorePage() {
               )}
             </div>
 
-            <div className="font-extrabold text-foreground">
-              Showing {filteredAndSortedProducts.length} of {products.length}{" "}
-              garments
+            <div className="font-extrabold text-foreground text-xs sm:text-sm">
+              {searchQuery ? (
+                <span>Showing {filteredAndSortedProducts.length} search {filteredAndSortedProducts.length === 1 ? 'result' : 'results'}</span>
+              ) : (
+                <span>Showing {filteredAndSortedProducts.length} of {products.length} garments</span>
+              )}
             </div>
           </div>
         </CardContent>
@@ -644,6 +682,7 @@ export default function UpcycledStorePage() {
             return (
               <Card
                 key={product.id}
+                id={`product-${product.id}`}
                 className="group flex flex-col justify-between overflow-hidden rounded-none border-2 border-border transition-all hover:border-primary"
               >
                 <div>
@@ -658,10 +697,16 @@ export default function UpcycledStorePage() {
                       }}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute top-3 left-3">
-                      <Badge className="rounded-none border border-black/10 bg-primary text-[11px] font-bold text-primary-foreground">
+                    <div className="absolute top-3 left-3 flex flex-col gap-1">
+                      <Badge className="rounded-none border border-black/10 bg-primary text-[11px] font-bold text-primary-foreground shadow-xs">
                         {product.recycledContentPercentage}% Recycled Content
                       </Badge>
+                      {isFuzzySearchActive && productFuseScoreMap.has(product.id) && (
+                        <Badge className="rounded-none border border-primary/40 bg-foreground text-background text-[10px] font-extrabold flex items-center gap-1 shadow-md">
+                          <Sparkles className="size-3 text-primary fill-primary" />
+                          {productFuseScoreMap.get(product.id)}% Match
+                        </Badge>
+                      )}
                     </div>
 
                     <div className="absolute right-3 bottom-3">
@@ -840,5 +885,13 @@ export default function UpcycledStorePage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function UpcycledStorePage() {
+  return (
+    <Suspense fallback={<div className="p-12 text-center text-xs font-semibold text-muted-foreground">Loading upcycled store...</div>}>
+      <UpcycledStoreContent />
+    </Suspense>
   )
 }

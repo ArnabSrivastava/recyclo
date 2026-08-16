@@ -20,6 +20,7 @@ import {
   LogOut,
   Package,
   Settings,
+  Search,
 } from 'lucide-react';
 import { useRecycloStore } from '@/lib/store/use-recyclo-store';
 import { Role } from '@/lib/types';
@@ -27,6 +28,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from 'next-themes';
 import { AuthModal } from '@/components/auth-modal';
+import { GlobalFuseSearch } from '@/components/global-fuse-search';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -46,6 +48,7 @@ export function Navbar() {
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isFuseSearchOpen, setIsFuseSearchOpen] = useState(false);
 
   const cartItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const unreadNotifs = notifications.filter((n) => !n.read && (n.role === activeRole || n.role === 'ALL'));
@@ -194,6 +197,16 @@ export function Navbar() {
           </nav>
 
           <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsFuseSearchOpen(true)}
+              className="text-muted-foreground hover:text-foreground rounded-none"
+              title="Search"
+            >
+              <Search className="size-5" />
+            </Button>
+
             <div className="relative">
               <Button
                 variant="ghost"
@@ -354,6 +367,11 @@ export function Navbar() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
+      />
+
+      <GlobalFuseSearch
+        isOpen={isFuseSearchOpen}
+        onClose={() => setIsFuseSearchOpen(false)}
       />
     </>
   );

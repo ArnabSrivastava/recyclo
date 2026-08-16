@@ -21,6 +21,8 @@ import {
   MATERIAL_MULTIPLIERS,
 } from "@/lib/pricing-engine"
 import { FabricMaterial } from "@/lib/types"
+import { useFuseSearch } from "@/hooks/use-fuse-search"
+import { LISTING_FUSE_KEYS } from "@/lib/fuse-search"
 
 export default function AdminControlCenterPage() {
   const {
@@ -55,11 +57,11 @@ export default function AdminControlCenterPage() {
     Record<string, number>
   >({ ...MATERIAL_MULTIPLIERS })
 
-  const filteredListings = listings.filter(
-    (l) =>
-      l.id.toLowerCase().includes(listingSearch.toLowerCase()) ||
-      l.userName.toLowerCase().includes(listingSearch.toLowerCase())
-  )
+  // Fuse.js Fuzzy Listing Search
+  const { results: filteredListings } = useFuseSearch(listings, listingSearch, {
+    keys: LISTING_FUSE_KEYS,
+    threshold: 0.4,
+  })
 
   const pendingDisputes = disputes.filter(
     (d) => d.status === "OPEN" || d.status === "UNDER_REVIEW"
