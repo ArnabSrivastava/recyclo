@@ -306,9 +306,406 @@ const SEED_BATCHES: ProcessingBatch[] = [
 // Seed Store Products with Traceability Stories
 const SEED_PRODUCTS: StoreProduct[] = [
   {
+    id: "prod_polo_oxford_shirt",
+    name: "Upcycled Polo Ralph Lauren Oxford Shirt",
+    tagline:
+      "Classic tailored button-down shirt reconstructed from 100% upcycled Ralph Lauren oxfords.",
+    description:
+      "Repurposed from vintage pre-loved Ralph Lauren cotton oxford shirts. Features signature chest pony embroidery, button-down collar, and relaxed fit tailored for all-day comfort.",
+    category: "Men's Wear",
+    subcategory: "Shirts & Polos",
+    gender: "Men",
+    size: "L",
+    brand: "Polo Ralph Lauren",
+    price: 1599,
+    originalPrice: 2299,
+    stock: 15,
+    material: "Cotton",
+    recycledContentPercentage: 94,
+    weightKg: 0.35,
+    color: "Blue",
+    images: [
+      "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=800&auto=format&fit=crop&q=80",
+    ],
+    sku: "REC-POL-MEN-006",
+    batchId: "PB1025",
+    traceabilityStory: {
+      originText:
+        "Restructured from sanitized 100% cotton Ralph Lauren shirts collected during Recyclo home pickups.",
+      textileWeightRecoveredKg: 0.45,
+      co2SavedKg: 6.8,
+      waterSavedLiters: 1400,
+      sourceBatchCode: "PB1025",
+    },
+    rating: 4.93,
+    reviewsCount: 34,
+    isFeatured: true,
+  },
+  {
+    id: "prod_patagonia_fleece",
+    name: "Upcycled Patagonia Synchilla Fleece Pullover",
+    tagline:
+      "Ultra-warm high-pile fleece snap-T pullover built from recycled outdoor garments.",
+    description:
+      "Re-engineered outdoors fleece pullover constructed from upcycled Patagonia Synchilla sweaters. Includes chest flap pocket, nylon stand-up collar, and elasticated cuffs.",
+    category: "Unisex Wear",
+    subcategory: "Sweaters & Knitwear",
+    gender: "Unisex",
+    size: "M",
+    brand: "Patagonia",
+    price: 1899,
+    originalPrice: 2799,
+    stock: 10,
+    material: "Wool",
+    recycledContentPercentage: 100,
+    weightKg: 0.6,
+    color: "Multicolor",
+    images: [
+      "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&auto=format&fit=crop&q=80",
+    ],
+    sku: "REC-PAT-UNI-007",
+    batchId: "PB1024",
+    traceabilityStory: {
+      originText:
+        "100% repurposed Patagonia fleece garments sanitized and reconstructed in Recyclo Batch PB1024.",
+      textileWeightRecoveredKg: 0.75,
+      co2SavedKg: 11.8,
+      waterSavedLiters: 2300,
+      sourceBatchCode: "PB1024",
+    },
+    rating: 4.97,
+    reviewsCount: 41,
+    isFeatured: true,
+  },
+  {
+    id: "prod_gucci_silk_shirt",
+    name: "Repurposed Gucci Monogram Silk Panel Shirt",
+    tagline:
+      "Luxe limited-edition upcycled silk resort shirt featuring restored floral panelling.",
+    description:
+      "Exclusive statement silk resort shirt hand-assembled from upcycled Gucci silk scarves and vintage shirts. Features mother-of-pearl buttons and breathable Cuban collar.",
+    category: "Unisex Wear",
+    subcategory: "Shirts & Polos",
+    gender: "Unisex",
+    size: "L",
+    brand: "Gucci",
+    price: 2499,
+    originalPrice: 3899,
+    stock: 5,
+    material: "Silk",
+    recycledContentPercentage: 100,
+    weightKg: 0.3,
+    color: "Multicolor",
+    images: [
+      "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?w=800&auto=format&fit=crop&q=80",
+    ],
+    sku: "REC-GUC-UNI-008",
+    batchId: "PB1025",
+    traceabilityStory: {
+      originText:
+        "Handcrafted from rare upcycled designer silk garments recovered in specialized recycling drives.",
+      textileWeightRecoveredKg: 0.4,
+      co2SavedKg: 7.2,
+      waterSavedLiters: 1500,
+      sourceBatchCode: "PB1025",
+    },
+    rating: 5.0,
+    reviewsCount: 19,
+    isFeatured: true,
+  },
+  {
+    id: "prod_underarmour_shorts",
+    name: "Upcycled Under Armour Tech Mesh Training Shorts",
+    tagline:
+      "Lightweight moisture-wicking athletic shorts built from upcycled sportswear.",
+    description:
+      "High-performance gym training shorts constructed from upcycled Under Armour polyester mesh garments. Features internal drawstring and quick-drying tech weave.",
+    category: "Men's Wear",
+    subcategory: "Shorts & Activewear",
+    gender: "Men",
+    size: "M",
+    brand: "Under Armour",
+    price: 999,
+    originalPrice: 1499,
+    stock: 20,
+    material: "Polyester",
+    recycledContentPercentage: 95,
+    weightKg: 0.25,
+    color: "Black",
+    images: [
+      "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=800&auto=format&fit=crop&q=80",
+    ],
+    sku: "REC-UAR-MEN-009",
+    batchId: "PB1024",
+    traceabilityStory: {
+      originText:
+        "Repurposed from inspect-passed Under Armour performance wear in Recyclo Batch PB1024.",
+      textileWeightRecoveredKg: 0.3,
+      co2SavedKg: 4.5,
+      waterSavedLiters: 900,
+      sourceBatchCode: "PB1024",
+    },
+    rating: 4.88,
+    reviewsCount: 27,
+    isFeatured: false,
+  },
+  {
+    id: "prod_uniqlo_down_vest",
+    name: "Upcycled Uniqlo Ultra Light Down Patchwork Vest",
+    tagline:
+      "Packable insulated down vest restored with contrast nylon outerwear panels.",
+    description:
+      "Sleek quilted sleeveless down vest rebuilt from post-consumer Uniqlo outerwear. Provides exceptional warmth without bulk, featuring full-zip closure and side zip pockets.",
+    category: "Unisex Wear",
+    subcategory: "Vests & Outerwear",
+    gender: "Unisex",
+    size: "L",
+    brand: "Uniqlo",
+    price: 1499,
+    originalPrice: 2199,
+    stock: 12,
+    material: "Nylon",
+    recycledContentPercentage: 92,
+    weightKg: 0.35,
+    color: "Black",
+    images: [
+      "https://images.unsplash.com/photo-1548883354-7622d03aca27?w=800&auto=format&fit=crop&q=80",
+    ],
+    sku: "REC-UNQ-UNI-010",
+    batchId: "PB1024",
+    traceabilityStory: {
+      originText:
+        "Restored from sanitized Uniqlo light outerwear collected during Recyclo winter drives.",
+      textileWeightRecoveredKg: 0.45,
+      co2SavedKg: 7.9,
+      waterSavedLiters: 1600,
+      sourceBatchCode: "PB1024",
+    },
+    rating: 4.91,
+    reviewsCount: 32,
+    isFeatured: true,
+  },
+  {
+    id: "prod_fabindia_khadi_kurta",
+    name: "Upcycled FabIndia Organic Khadi Short Kurta",
+    tagline:
+      "Hand-spun organic khadi cotton kurta embellished with traditional wooden buttons.",
+    description:
+      "Breathable short casual kurta remade from upcycled FabIndia khadi shirts. Features mandarin collar, side slits, and artisanal handblock detail.",
+    category: "Ethnic & Traditional",
+    subcategory: "Kurtas",
+    gender: "Men",
+    size: "L",
+    brand: "FabIndia",
+    price: 1199,
+    originalPrice: 1699,
+    stock: 14,
+    material: "Cotton",
+    recycledContentPercentage: 98,
+    weightKg: 0.3,
+    color: "Beige",
+    images: [
+      "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=800&auto=format&fit=crop&q=80",
+    ],
+    sku: "REC-FAB-MEN-011",
+    batchId: "PB1025",
+    traceabilityStory: {
+      originText:
+        "Handcrafted from inspect-passed FabIndia organic khadi garments collected in Bengaluru.",
+      textileWeightRecoveredKg: 0.4,
+      co2SavedKg: 6.2,
+      waterSavedLiters: 1250,
+      sourceBatchCode: "PB1025",
+    },
+    rating: 4.94,
+    reviewsCount: 26,
+    isFeatured: true,
+  },
+  {
+    id: "prod_adidas_track_jacket",
+    name: "Upcycled Adidas Trefoil Windbreaker Track Jacket",
+    tagline:
+      "Restored retro Adidas athletic track jacket crafted from repurposed activewear.",
+    description:
+      "Reconstructed from 100% post-consumer Adidas vintage tracksuits collected during Recyclo city drives. Features classic 3-stripe sleeve panelling, breathable mesh lining, and zip pockets.",
+    category: "Men's Wear",
+    subcategory: "Tracksuits & Jackets",
+    gender: "Men",
+    size: "L",
+    brand: "Adidas",
+    price: 1699,
+    originalPrice: 2499,
+    stock: 14,
+    material: "Polyester",
+    recycledContentPercentage: 98,
+    weightKg: 0.55,
+    color: "Black",
+    images: [
+      "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&auto=format&fit=crop&q=80",
+    ],
+    sku: "REC-ADI-MEN-001",
+    batchId: "PB1024",
+    traceabilityStory: {
+      originText:
+        "Upcycled from 100% recycled Adidas performance wear collected in Recyclo Batch PB1024.",
+      textileWeightRecoveredKg: 0.7,
+      co2SavedKg: 10.5,
+      waterSavedLiters: 1950,
+      sourceBatchCode: "PB1024",
+    },
+    rating: 4.95,
+    reviewsCount: 38,
+    isFeatured: true,
+  },
+  {
+    id: "prod_nike_fleece_hoodie",
+    name: "Upcycled Nike Sportswear Colorblock Hoodie",
+    tagline:
+      "Ultra-cozy fleece pullover hoodie built from repurposed Nike sweatshirts.",
+    description:
+      "Handcrafted colorblock fleece hoodie remade from upcycled Nike athletic wear. Features kangaroo pocket, drawstring hood, and signature embroidered chest patch.",
+    category: "Unisex Wear",
+    subcategory: "Hoodies & Sweatshirts",
+    gender: "Unisex",
+    size: "M",
+    brand: "Nike",
+    price: 1599,
+    originalPrice: 2299,
+    stock: 16,
+    material: "Cotton",
+    recycledContentPercentage: 92,
+    weightKg: 0.65,
+    color: "Grey",
+    images: [
+      "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&auto=format&fit=crop&q=80",
+    ],
+    sku: "REC-NKE-UNI-002",
+    batchId: "PB1025",
+    traceabilityStory: {
+      originText:
+        "Restructured from sanitized Nike heavy-fleece sweatshirts collected during household drives.",
+      textileWeightRecoveredKg: 0.8,
+      co2SavedKg: 12.1,
+      waterSavedLiters: 2200,
+      sourceBatchCode: "PB1025",
+    },
+    rating: 4.9,
+    reviewsCount: 45,
+    isFeatured: true,
+  },
+  {
+    id: "prod_puma_t7_joggers",
+    name: "Upcycled Puma T7 Athletic Jogger Pants",
+    tagline:
+      "Reconditioned iconic Puma track pants with vintage contrast side stripes.",
+    description:
+      "Slim-fit athletic track pants reconstructed from post-consumer Puma fleece joggers. Features elastic waistband with drawstring, side zip pockets, and rib-knit cuffs.",
+    category: "Men's Wear",
+    subcategory: "Track Pants & Joggers",
+    gender: "Men",
+    size: "M",
+    brand: "Puma",
+    price: 1299,
+    originalPrice: 1899,
+    stock: 18,
+    material: "Cotton",
+    recycledContentPercentage: 90,
+    weightKg: 0.5,
+    color: "Black",
+    images: [
+      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80",
+    ],
+    sku: "REC-PUM-MEN-003",
+    batchId: "PB1024",
+    traceabilityStory: {
+      originText:
+        "Upcycled from inspect-passed Puma sportswear garments from Recyclo batch PB1024.",
+      textileWeightRecoveredKg: 0.6,
+      co2SavedKg: 9.2,
+      waterSavedLiters: 1750,
+      sourceBatchCode: "PB1024",
+    },
+    rating: 4.85,
+    reviewsCount: 29,
+    isFeatured: true,
+  },
+  {
+    id: "prod_zara_silk_wrap_top",
+    name: "Repurposed Zara Floral Silk Wrap Blouse",
+    tagline:
+      "Elegant floor-drape floral wrap blouse created from upcycled Zara silk tops.",
+    description:
+      "Hand-tailored V-neck wrap top with balloon sleeves crafted from upcycled pre-loved Zara silk blouses. Soft, breathable, and versatile for festive or casual styling.",
+    category: "Women's Wear",
+    subcategory: "Tops & Blouses",
+    gender: "Women",
+    size: "S",
+    brand: "Zara",
+    price: 1399,
+    originalPrice: 1999,
+    stock: 11,
+    material: "Silk",
+    recycledContentPercentage: 96,
+    weightKg: 0.25,
+    color: "Red",
+    images: [
+      "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=800&auto=format&fit=crop&q=80",
+    ],
+    sku: "REC-ZAR-WMN-004",
+    batchId: "PB1025",
+    traceabilityStory: {
+      originText:
+        "Repurposed from vintage Zara floral silk blouses recovered during Recyclo home pickups.",
+      textileWeightRecoveredKg: 0.35,
+      co2SavedKg: 5.4,
+      waterSavedLiters: 1200,
+      sourceBatchCode: "PB1025",
+    },
+    rating: 4.92,
+    reviewsCount: 23,
+    isFeatured: true,
+  },
+  {
+    id: "prod_levis_501_patchwork",
+    name: "Upcycled Levi's 501 Sashiko Patchwork Jeans",
+    tagline:
+      "Hand-rebuilt classic Levi's 501 jeans with Japanese sashiko denim patching.",
+    description:
+      "Custom straight-leg denim jeans meticulously restored from vintage Levi's 501 denims using hand-stitched sashiko embroidery and contrasting indigo knee patches.",
+    category: "Unisex Wear",
+    subcategory: "Jeans & Pants",
+    gender: "Unisex",
+    size: "L",
+    brand: "Levi's",
+    price: 1799,
+    originalPrice: 2599,
+    stock: 9,
+    material: "Denim",
+    recycledContentPercentage: 100,
+    weightKg: 0.75,
+    color: "Indigo Blue",
+    images: [
+      "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800&auto=format&fit=crop&q=80",
+    ],
+    sku: "REC-LEV-UNI-005",
+    batchId: "PB1024",
+    traceabilityStory: {
+      originText:
+        "Hand-restored using 100% authentic post-consumer Levi's denim jeans.",
+      textileWeightRecoveredKg: 0.95,
+      co2SavedKg: 14.8,
+      waterSavedLiters: 2700,
+      sourceBatchCode: "PB1024",
+    },
+    rating: 4.98,
+    reviewsCount: 51,
+    isFeatured: true,
+  },
+  {
     id: "prod_denim_jacket_01",
     name: "Upcycled Patchwork Denim Trucker Jacket",
-    tagline: "Heavyweight restored indigo denim jacket with handcrafted sashiko stitching.",
+    tagline:
+      "Heavyweight restored indigo denim jacket with handcrafted sashiko stitching.",
     description:
       "Reconstructed from 3 post-consumer denim jeans recovered during household pickups. Features reinforced brass hardware, custom patchwork sleeve paneling, and interior stash pockets.",
     category: "Men's Wear",
@@ -604,7 +1001,8 @@ const SEED_PRODUCTS: StoreProduct[] = [
     sku: "REC-CLO-MEN-009",
     batchId: "PB1025",
     traceabilityStory: {
-      originText: "Rebuilt using pure linen textiles collected in summer drives.",
+      originText:
+        "Rebuilt using pure linen textiles collected in summer drives.",
       textileWeightRecoveredKg: 0.35,
       co2SavedKg: 5.1,
       waterSavedLiters: 950,
@@ -803,7 +1201,8 @@ const SEED_PRODUCTS: StoreProduct[] = [
     sku: "REC-CLO-ACC-015",
     batchId: "PB1024",
     traceabilityStory: {
-      originText: "Crafted zero-waste from cutting scrap remnants of denim jeans.",
+      originText:
+        "Crafted zero-waste from cutting scrap remnants of denim jeans.",
       textileWeightRecoveredKg: 0.25,
       co2SavedKg: 3.6,
       waterSavedLiters: 680,
@@ -849,7 +1248,8 @@ const SEED_PRODUCTS: StoreProduct[] = [
   {
     id: "prod_denim_overalls_17",
     name: "Upcycled Patchwork Denim Dungaree Overalls",
-    tagline: "Relaxed-fit utility denim dungarees with contrast front bib pocket.",
+    tagline:
+      "Relaxed-fit utility denim dungarees with contrast front bib pocket.",
     description:
       "Handcrafted bib overalls made from durable post-consumer denim jeans. Features adjustable shoulder straps, side button closures, and utility tool loops.",
     category: "Women's Wear",
@@ -869,7 +1269,8 @@ const SEED_PRODUCTS: StoreProduct[] = [
     sku: "REC-CLO-WOM-017",
     batchId: "PB1024",
     traceabilityStory: {
-      originText: "Stitched using heavy indigo denim from Recyclo batch PB1024.",
+      originText:
+        "Stitched using heavy indigo denim from Recyclo batch PB1024.",
       textileWeightRecoveredKg: 1.0,
       co2SavedKg: 14.8,
       waterSavedLiters: 2750,
@@ -882,7 +1283,8 @@ const SEED_PRODUCTS: StoreProduct[] = [
   {
     id: "prod_silk_choli_18",
     name: "Repurposed Brocade Silk Padded Crop Blouse",
-    tagline: "Ethnic padded blouse top crafted from vintage Zari silk brocade saree fabric.",
+    tagline:
+      "Ethnic padded blouse top crafted from vintage Zari silk brocade saree fabric.",
     description:
       "Sleeveless cropped blouse with back tie detailing, sweetheart neck, and cotton lining remade from upcycled Banarasi sarees.",
     category: "Ethnic & Traditional",
@@ -902,7 +1304,8 @@ const SEED_PRODUCTS: StoreProduct[] = [
     sku: "REC-CLO-ETH-018",
     batchId: "PB1025",
     traceabilityStory: {
-      originText: "Upcycled from pure brocade silk saree pallus collected in drives.",
+      originText:
+        "Upcycled from pure brocade silk saree pallus collected in drives.",
       textileWeightRecoveredKg: 0.25,
       co2SavedKg: 3.8,
       waterSavedLiters: 700,
@@ -946,7 +1349,8 @@ const SEED_PRODUCTS: StoreProduct[] = [
   {
     id: "prod_linen_trousers_20",
     name: "Relaxed Fit Upcycled Linen Drawstring Trousers",
-    tagline: "Breezy linen-blend summer trousers with elastic drawstring waistband.",
+    tagline:
+      "Breezy linen-blend summer trousers with elastic drawstring waistband.",
     description:
       "Comfortable wide-leg pants crafted from upcycled pure linen fabric. Features side slash pockets and rear welt pocket.",
     category: "Unisex Wear",
@@ -978,7 +1382,8 @@ const SEED_PRODUCTS: StoreProduct[] = [
   {
     id: "prod_wool_poncho_21",
     name: "Fringe Recycled Wool Shawl Poncho",
-    tagline: "Boho knit wrap poncho with tassel fringes made from recycled wool.",
+    tagline:
+      "Boho knit wrap poncho with tassel fringes made from recycled wool.",
     description:
       "Layerable winter poncho cape featuring asymmetric hemline and fringed border. Warm, soft, and light weight.",
     category: "Winter & Outerwear",
@@ -1042,7 +1447,8 @@ const SEED_PRODUCTS: StoreProduct[] = [
   {
     id: "prod_denim_mini_skirt_23",
     name: "Refitted Two-Tone Denim Mini Skirt",
-    tagline: "Trendy high-rise A-line denim skirt crafted from upcycled denim jeans.",
+    tagline:
+      "Trendy high-rise A-line denim skirt crafted from upcycled denim jeans.",
     description:
       "Flattering mini skirt with raw hem and contrast back pockets. Built from post-consumer denim pant legs.",
     category: "Women's Wear",
@@ -1062,7 +1468,8 @@ const SEED_PRODUCTS: StoreProduct[] = [
     sku: "REC-CLO-WOM-023",
     batchId: "PB1024",
     traceabilityStory: {
-      originText: "Refitted zero-waste from denim legs recovered in batch PB1024.",
+      originText:
+        "Refitted zero-waste from denim legs recovered in batch PB1024.",
       textileWeightRecoveredKg: 0.45,
       co2SavedKg: 6.5,
       waterSavedLiters: 1200,
@@ -1106,7 +1513,8 @@ const SEED_PRODUCTS: StoreProduct[] = [
   {
     id: "prod_silk_scarf_men_25",
     name: "Men's Upcycled Raw Silk Pocket Square & Cravat Set",
-    tagline: "Dapper formal pocket square & cravat tie crafted from silk sarees.",
+    tagline:
+      "Dapper formal pocket square & cravat tie crafted from silk sarees.",
     description:
       "Elegant formal accessory set featuring rolled hems and rich textured raw silk upcycled from handloom sarees.",
     category: "Accessories & Scarves",
@@ -1267,7 +1675,8 @@ const SEED_PRODUCTS: StoreProduct[] = [
   {
     id: "prod_boho_kimono_robe_30",
     name: "Printed Cotton Boho Bathrobe / Duster Coat",
-    tagline: "Floor-length printed cotton wrap coat with fabric belt waist tie.",
+    tagline:
+      "Floor-length printed cotton wrap coat with fabric belt waist tie.",
     description:
       "Multi-functional lightweight duster coat or lougewear robe remade from soft handblock printed cotton sheets.",
     category: "Women's Wear",
@@ -1300,7 +1709,8 @@ const SEED_PRODUCTS: StoreProduct[] = [
     id: "prod_upcycled_beanie_31",
     name: "Recycled Wool Ribbed Beanie & Wrist Warmer Set",
     tagline: "Cozy eco-knit winter cap and fingerless wrist warmers.",
-    description: "Knit from 100% recycled woolen yarn. Soft touch, itch-free, and snug winter fit.",
+    description:
+      "Knit from 100% recycled woolen yarn. Soft touch, itch-free, and snug winter fit.",
     category: "Accessories & Scarves",
     subcategory: "Hats & Gloves",
     gender: "Unisex",
@@ -1318,7 +1728,8 @@ const SEED_PRODUCTS: StoreProduct[] = [
     sku: "REC-CLO-ACC-031",
     batchId: "PB1024",
     traceabilityStory: {
-      originText: "Spun from woolen sweaters collected during Winter Recyclo Drives.",
+      originText:
+        "Spun from woolen sweaters collected during Winter Recyclo Drives.",
       textileWeightRecoveredKg: 0.25,
       co2SavedKg: 3.6,
       waterSavedLiters: 680,
@@ -1331,7 +1742,8 @@ const SEED_PRODUCTS: StoreProduct[] = [
     id: "prod_unisex_linen_kurta_32",
     name: "Minimalist Off-White Upcycled Linen Short Kurta",
     tagline: "Casual short kurta top crafted from pure upcycled linen fabric.",
-    description: "Modern short kurta tunic with side slits, wooden button placket, and breathable finish.",
+    description:
+      "Modern short kurta tunic with side slits, wooden button placket, and breathable finish.",
     category: "Ethnic & Traditional",
     subcategory: "Kurtas",
     gender: "Unisex",
@@ -1361,8 +1773,10 @@ const SEED_PRODUCTS: StoreProduct[] = [
   {
     id: "prod_saree_fusion_gown_33",
     name: "Repurposed Zari Silk Fusion Maxi Gown",
-    tagline: "Floor-length evening gown created from upcycled Kanjeevaram silk saree.",
-    description: "Elegant flared gown with subtle gold zari border accents and structured bodice lining.",
+    tagline:
+      "Floor-length evening gown created from upcycled Kanjeevaram silk saree.",
+    description:
+      "Elegant flared gown with subtle gold zari border accents and structured bodice lining.",
     category: "Ethnic & Traditional",
     subcategory: "Dresses & Gowns",
     gender: "Women",
@@ -1393,8 +1807,10 @@ const SEED_PRODUCTS: StoreProduct[] = [
   {
     id: "prod_denim_cargo_pants_34",
     name: "Upcycled Multi-Pocket Denim Cargo Pants",
-    tagline: "Streetwear utility cargo trousers made from upcycled denim paneling.",
-    description: "Relaxed-fit cargo pants featuring 6 flap pockets, drawstring ankles, and sturdy brass zip fly.",
+    tagline:
+      "Streetwear utility cargo trousers made from upcycled denim paneling.",
+    description:
+      "Relaxed-fit cargo pants featuring 6 flap pockets, drawstring ankles, and sturdy brass zip fly.",
     category: "Men's Wear",
     subcategory: "Bottomwear & Pants",
     gender: "Men",
@@ -1424,8 +1840,10 @@ const SEED_PRODUCTS: StoreProduct[] = [
   {
     id: "prod_wool_tweed_blazer_35",
     name: "Upcycled Handspun Wool Tweed Tailored Blazer",
-    tagline: "Classic structured winter blazer remade from recycled woolen tweed.",
-    description: "Refined single-breasted blazer with notch lapel, elbow patches, and soft inner lining.",
+    tagline:
+      "Classic structured winter blazer remade from recycled woolen tweed.",
+    description:
+      "Refined single-breasted blazer with notch lapel, elbow patches, and soft inner lining.",
     category: "Winter & Outerwear",
     subcategory: "Outerwear & Blazers",
     gender: "Men",
@@ -1456,7 +1874,8 @@ const SEED_PRODUCTS: StoreProduct[] = [
     id: "prod_cotton_kaftan_36",
     name: "Ajrakh Printed Cotton Summer Kaftan Dress",
     tagline: "Flowy breezy kaftan dress with drawstring waist tie.",
-    description: "Relaxed bohemian dress with kimono sleeves, side slits, and handblock Ajrakh print motifs.",
+    description:
+      "Relaxed bohemian dress with kimono sleeves, side slits, and handblock Ajrakh print motifs.",
     category: "Women's Wear",
     subcategory: "Dresses & Kaftans",
     gender: "Women",
@@ -2452,8 +2871,16 @@ export const useRecycloStore = create<RecycloState>()(
         })),
     }),
     {
-      name: "recyclo-storage-v3",
+      name: "recyclo-storage-v4",
       storage: createJSONStorage(() => localStorage),
+      merge: (persistedState, currentState) => {
+        const pState = (persistedState as typeof currentState) || {}
+        return {
+          ...currentState,
+          ...pState,
+          products: SEED_PRODUCTS,
+        }
+      },
     }
   )
 )

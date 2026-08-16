@@ -224,6 +224,7 @@ export interface StoreProduct {
   subcategory: string;
   gender?: 'Men' | 'Women' | 'Unisex';
   size?: 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'Free Size';
+  brand?: string;
   price: number;
   originalPrice?: number;
   stock: number;

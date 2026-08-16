@@ -1,7 +1,8 @@
 "use client"
 
-import React, { useState, useMemo, useEffect } from "react"
+import React, { useState, useMemo, useEffect, Suspense } from "react"
 import Link from "next/link"
+import { useSearchParams, useRouter } from "next/navigation"
 import {
   ShoppingBag,
   Sparkles,
@@ -29,23 +30,51 @@ import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
 import { useRecycloStore } from "@/lib/store/use-recyclo-store"
 import { FabricMaterial } from "@/lib/types"
+import { useFuseSearch } from "@/hooks/use-fuse-search"
+import { PRODUCT_FUSE_KEYS } from "@/lib/fuse-search"
 
-export default function UpcycledStorePage() {
+function UpcycledStoreContent() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const urlQuery =
+    searchParams.get("q") ||
+    searchParams.get("search") ||
+    searchParams.get("keyword") ||
+    ""
+
   const { products, addToCart } = useRecycloStore()
 
-  // Filter States
   const [selectedGender, setSelectedGender] = useState<string>("ALL")
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL")
   const [selectedSize, setSelectedSize] = useState<string>("ALL")
+  const [selectedBrand, setSelectedBrand] = useState<string>("ALL")
   const [selectedMaterial, setSelectedMaterial] = useState<string>("ALL")
   const [selectedColor, setSelectedColor] = useState<string>("ALL")
   const [selectedPriceRange, setSelectedPriceRange] = useState<string>("ALL")
   const [minRecycledPercent, setMinRecycledPercent] = useState<number>(0)
   const [inStockOnly, setInStockOnly] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
+  const [prevUrlQuery, setPrevUrlQuery] = useState(urlQuery)
+  const [overrideQuery, setOverrideQuery] = useState<string | null>(null)
+
+  if (urlQuery !== prevUrlQuery) {
+    setPrevUrlQuery(urlQuery)
+    setOverrideQuery(null)
+  }
+
+  const searchQuery = overrideQuery !== null ? overrideQuery : urlQuery
+  const setSearchQuery = (val: string) => setOverrideQuery(val)
+  const fuzzyThreshold = 0.4
   const [sortBy, setSortBy] = useState<string>("FEATURED")
 
   const [addedProductId, setAddedProductId] = useState<string | null>(null)
+
+  const {
+    results: fuseMatchedProducts,
+    hasQuery: isFuzzySearchActive,
+  } = useFuseSearch(products, searchQuery, {
+    keys: PRODUCT_FUSE_KEYS,
+    threshold: fuzzyThreshold,
+  })
 
   const genderOptions = ["ALL", "Men", "Women", "Unisex"]
 
@@ -83,48 +112,64 @@ export default function UpcycledStorePage() {
     "Multicolor",
   ]
 
+  const brandOptions = [
+    "ALL",
+    "Adidas",
+    "Nike",
+    "Puma",
+    "Zara",
+    "Levi's",
+    "Polo Ralph Lauren",
+    "Patagonia",
+    "Gucci",
+    "Under Armour",
+    "Uniqlo",
+    "FabIndia",
+  ]
+
   const filteredAndSortedProducts = useMemo(() => {
-    return products
+    const sourceList = isFuzzySearchActive ? fuseMatchedProducts : products
+
+    const isMenQuery = /\b(male|men|mens|men's|man|gents|boy|boys)\b/i.test(
+      searchQuery
+    )
+    const isWomenQuery =
+      /\b(female|women|womens|women's|woman|lady|ladies|girl|girls)\b/i.test(
+        searchQuery
+      )
+
+    return sourceList
       .filter((p) => {
-        // Gender Filter
+        if (isMenQuery && p.gender === "Women") return false
+        if (isWomenQuery && p.gender === "Men") return false
+
         const matchesGender =
           selectedGender === "ALL" ||
           p.gender === selectedGender ||
           (p.gender === "Unisex" && selectedGender !== "ALL")
 
-        // Category Filter
         const matchesCat =
-          selectedCategory === "ALL" || (p.category as string) === selectedCategory
+          selectedCategory === "ALL" ||
+          (p.category as string) === selectedCategory
 
-        // Garment Size Filter
         const matchesSize =
           selectedSize === "ALL" ||
           p.size === selectedSize ||
           (p.size === "Free Size" && selectedSize !== "ALL")
 
-        // Search Query
-        const q = searchQuery.toLowerCase().trim()
-        const matchesQuery =
-          !q ||
-          p.name.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          p.tagline.toLowerCase().includes(q) ||
-          p.material.toLowerCase().includes(q) ||
-          p.color.toLowerCase().includes(q) ||
-          p.sku.toLowerCase().includes(q) ||
-          (p.batchId && p.batchId.toLowerCase().includes(q))
+        const matchesBrand =
+          selectedBrand === "ALL" ||
+          (p.brand && p.brand.toLowerCase() === selectedBrand.toLowerCase()) ||
+          p.name.toLowerCase().includes(selectedBrand.toLowerCase())
 
-        // Fabric Material Filter
         const matchesMaterial =
           selectedMaterial === "ALL" ||
           p.material.toLowerCase() === selectedMaterial.toLowerCase()
 
-        // Color Filter
         const matchesColor =
           selectedColor === "ALL" ||
           p.color.toLowerCase().includes(selectedColor.toLowerCase())
 
-        // Price Range Filter
         let matchesPrice = true
         if (selectedPriceRange === "UNDER_500") matchesPrice = p.price < 500
         else if (selectedPriceRange === "500_1000")
@@ -134,18 +179,16 @@ export default function UpcycledStorePage() {
         else if (selectedPriceRange === "ABOVE_2000")
           matchesPrice = p.price > 2000
 
-        // Recycled Content Percentage Filter
         const matchesRecycled =
           p.recycledContentPercentage >= minRecycledPercent
 
-        // In-Stock Filter
         const matchesStock = !inStockOnly || p.stock > 0
 
         return (
           matchesGender &&
           matchesCat &&
           matchesSize &&
-          matchesQuery &&
+          matchesBrand &&
           matchesMaterial &&
           matchesColor &&
           matchesPrice &&
@@ -154,6 +197,9 @@ export default function UpcycledStorePage() {
         )
       })
       .sort((a, b) => {
+        if (isFuzzySearchActive && sortBy === "FEATURED") {
+          return 0 // Maintain Fuse.js relevance ranking score!
+        }
         if (sortBy === "PRICE_LOW") return a.price - b.price
         if (sortBy === "PRICE_HIGH") return b.price - a.price
         if (sortBy === "RECYCLED_HIGH")
@@ -164,11 +210,14 @@ export default function UpcycledStorePage() {
         return (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0)
       })
   }, [
+    searchQuery,
     products,
+    fuseMatchedProducts,
+    isFuzzySearchActive,
     selectedGender,
     selectedCategory,
     selectedSize,
-    searchQuery,
+    selectedBrand,
     selectedMaterial,
     selectedColor,
     selectedPriceRange,
@@ -200,17 +249,22 @@ export default function UpcycledStorePage() {
   const ITEMS_PER_PAGE = 9
   const [currentPage, setCurrentPage] = useState(1)
 
-  const totalPages = Math.ceil(filteredAndSortedProducts.length / ITEMS_PER_PAGE) || 1
+  const totalPages =
+    Math.ceil(filteredAndSortedProducts.length / ITEMS_PER_PAGE) || 1
   const safeCurrentPage = Math.min(currentPage, totalPages)
   const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE
   const paginatedProducts = useMemo(() => {
-    return filteredAndSortedProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+    return filteredAndSortedProducts.slice(
+      startIndex,
+      startIndex + ITEMS_PER_PAGE
+    )
   }, [filteredAndSortedProducts, startIndex])
 
   const activeFilterCount =
     (selectedGender !== "ALL" ? 1 : 0) +
     (selectedCategory !== "ALL" ? 1 : 0) +
     (selectedSize !== "ALL" ? 1 : 0) +
+    (selectedBrand !== "ALL" ? 1 : 0) +
     (selectedMaterial !== "ALL" ? 1 : 0) +
     (selectedColor !== "ALL" ? 1 : 0) +
     (selectedPriceRange !== "ALL" ? 1 : 0) +
@@ -223,6 +277,7 @@ export default function UpcycledStorePage() {
     setSelectedGender("ALL")
     setSelectedCategory("ALL")
     setSelectedSize("ALL")
+    setSelectedBrand("ALL")
     setSelectedMaterial("ALL")
     setSelectedColor("ALL")
     setSelectedPriceRange("ALL")
@@ -254,7 +309,11 @@ export default function UpcycledStorePage() {
             The Recyclo Clothing Store
           </h1>
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Explore handcrafted upcycled apparel — patchwork denim jackets, Banarasi silk kimonos, Ajrakh cotton kurtas, cozy woolen cardigans, and boho dresses. Made directly from post-consumer garments collected via Recyclo household pickups with 100% supply chain traceability.
+            Explore handcrafted upcycled apparel — patchwork denim jackets,
+            Banarasi silk kimonos, Ajrakh cotton kurtas, cozy woolen cardigans,
+            and boho dresses. Made directly from post-consumer garments
+            collected via Recyclo household pickups with 100% supply chain
+            traceability.
           </p>
         </div>
 
@@ -271,7 +330,8 @@ export default function UpcycledStorePage() {
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <div className="flex items-center gap-2">
               <Badge className="rounded-none border border-black/10 bg-primary font-bold text-primary-foreground">
-                <SlidersHorizontal className="mr-1 size-3.5" /> Clothing Search & Specific Filters
+                <SlidersHorizontal className="mr-1 size-3.5" /> Clothing Search
+                & Specific Filters
               </Badge>
               {activeFilterCount > 0 && (
                 <Badge
@@ -300,24 +360,38 @@ export default function UpcycledStorePage() {
           {/* Row 1: Search Bar & Department (Gender) Pills */}
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             {/* Search Input */}
-            <div className="relative w-full lg:w-96">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                const trimmed = searchQuery.trim()
+                if (trimmed) {
+                  router.push(`/store?q=${encodeURIComponent(trimmed)}`)
+                } else {
+                  router.push("/store")
+                }
+              }}
+              className="relative w-full lg:w-96"
+            >
               <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search garments by keyword, fabric, color, or batch..."
+                placeholder="Search garments by keyword, fabric, color..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-10 rounded-none border-2 border-border pl-9 text-xs"
+                className="h-10 rounded-none border-2 border-border pr-8 pl-9 text-xs font-medium"
               />
               {searchQuery && (
                 <button
                   type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  onClick={() => {
+                    setSearchQuery("")
+                    router.push("/store")
+                  }}
+                  className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
                 >
                   <X className="size-3.5" />
                 </button>
               )}
-            </div>
+            </form>
 
             {/* Gender / Department Tabs */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0">
@@ -363,8 +437,8 @@ export default function UpcycledStorePage() {
           </div>
 
           {/* Row 3: Specific Multi-Select Attribute Dropdowns */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 border-t border-border/60 pt-3">
-            {/* Size Filter */}
+          <div className="grid grid-cols-2 gap-3 border-t border-border/60 pt-3 sm:grid-cols-3 lg:grid-cols-6">
+            {/* Garment Size Dropdown */}
             <div>
               <label className="mb-1 block text-[11px] font-semibold text-muted-foreground">
                 Garment Size
@@ -377,9 +451,30 @@ export default function UpcycledStorePage() {
                 <option value="ALL">All Sizes</option>
                 {sizeOptions
                   .filter((s) => s !== "ALL")
-                  .map((size) => (
-                    <option key={size} value={size}>
-                      Size {size}
+                  .map((sz) => (
+                    <option key={sz} value={sz}>
+                      Size {sz}
+                    </option>
+                  ))}
+              </Select>
+            </div>
+
+            {/* Brand / Label Dropdown */}
+            <div>
+              <label className="mb-1 block text-[11px] font-semibold text-muted-foreground">
+                Brand / Label
+              </label>
+              <Select
+                value={selectedBrand}
+                onChange={(e) => setSelectedBrand(e.target.value)}
+                className="h-9 rounded-none border-2 border-border text-xs"
+              >
+                <option value="ALL">All Brands</option>
+                {brandOptions
+                  .filter((b) => b !== "ALL")
+                  .map((b) => (
+                    <option key={b} value={b}>
+                      {b}
                     </option>
                   ))}
               </Select>
@@ -466,14 +561,14 @@ export default function UpcycledStorePage() {
             {/* Sort By Dropdown */}
             <div>
               <label className="mb-1 block text-[11px] font-semibold text-muted-foreground">
-                Sort Items By
+                Sort By
               </label>
               <Select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className="h-9 rounded-none border-2 border-border text-xs font-bold"
               >
-                <option value="FEATURED">Featured Items</option>
+                <option value="FEATURED">Featured</option>
                 <option value="PRICE_LOW">Price: Low to High</option>
                 <option value="PRICE_HIGH">Price: High to Low</option>
                 <option value="RECYCLED_HIGH">Highest Recycled %</option>
@@ -525,6 +620,19 @@ export default function UpcycledStorePage() {
                   <X
                     className="size-3 cursor-pointer hover:text-destructive"
                     onClick={() => setSelectedSize("ALL")}
+                  />
+                </Badge>
+              )}
+
+              {selectedBrand !== "ALL" && (
+                <Badge
+                  variant="outline"
+                  className="flex items-center gap-1 rounded-none border-border bg-muted font-bold text-foreground"
+                >
+                  Brand: {selectedBrand}
+                  <X
+                    className="size-3 cursor-pointer hover:text-destructive"
+                    onClick={() => setSelectedBrand("ALL")}
                   />
                 </Badge>
               )}
@@ -608,9 +716,20 @@ export default function UpcycledStorePage() {
               )}
             </div>
 
-            <div className="font-extrabold text-foreground">
-              Showing {filteredAndSortedProducts.length} of {products.length}{" "}
-              garments
+            <div className="text-xs font-extrabold text-foreground sm:text-sm">
+              {searchQuery ? (
+                <span>
+                  Showing {filteredAndSortedProducts.length} search{" "}
+                  {filteredAndSortedProducts.length === 1
+                    ? "result"
+                    : "results"}
+                </span>
+              ) : (
+                <span>
+                  Showing {filteredAndSortedProducts.length} of{" "}
+                  {products.length} garments
+                </span>
+              )}
             </div>
           </div>
         </CardContent>
@@ -626,7 +745,8 @@ export default function UpcycledStorePage() {
                 No clothing items match your search criteria
               </h3>
               <p className="text-xs text-muted-foreground">
-                Try expanding your size selection, clearing color filters, or selecting &quot;All Departments&quot;.
+                Try expanding your size selection, clearing color filters, or
+                selecting &quot;All Departments&quot;.
               </p>
             </div>
             <Button
@@ -644,6 +764,7 @@ export default function UpcycledStorePage() {
             return (
               <Card
                 key={product.id}
+                id={`product-${product.id}`}
                 className="group flex flex-col justify-between overflow-hidden rounded-none border-2 border-border transition-all hover:border-primary"
               >
                 <div>
@@ -658,8 +779,8 @@ export default function UpcycledStorePage() {
                       }}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute top-3 left-3">
-                      <Badge className="rounded-none border border-black/10 bg-primary text-[11px] font-bold text-primary-foreground">
+                    <div className="absolute top-3 left-3 flex flex-col gap-1">
+                      <Badge className="rounded-none border border-black/10 bg-primary text-[11px] font-bold text-primary-foreground shadow-xs">
                         {product.recycledContentPercentage}% Recycled Content
                       </Badge>
                     </div>
@@ -676,8 +797,10 @@ export default function UpcycledStorePage() {
 
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span className="font-bold text-foreground uppercase tracking-wider text-[11px]">
-                        {product.gender || "UNISEX"} • SIZE {product.size || "FREE"} • {product.material}
+                      <span className="text-[11px] font-bold tracking-wider text-foreground uppercase">
+                        {product.brand ? `${product.brand} • ` : ""}
+                        {product.gender || "UNISEX"} • SIZE{" "}
+                        {product.size || "FREE"} • {product.material}
                       </span>
                       <span className="text-[10px]">SKU: {product.sku}</span>
                     </div>
@@ -760,9 +883,16 @@ export default function UpcycledStorePage() {
           <div className="text-xs font-bold text-muted-foreground">
             Showing <span className="text-foreground">{startIndex + 1}</span>–
             <span className="text-foreground">
-              {Math.min(startIndex + ITEMS_PER_PAGE, filteredAndSortedProducts.length)}
+              {Math.min(
+                startIndex + ITEMS_PER_PAGE,
+                filteredAndSortedProducts.length
+              )}
             </span>{" "}
-            of <span className="text-foreground">{filteredAndSortedProducts.length}</span> clothing items (Page {safeCurrentPage} of {totalPages})
+            of{" "}
+            <span className="text-foreground">
+              {filteredAndSortedProducts.length}
+            </span>{" "}
+            clothing items (Page {safeCurrentPage} of {totalPages})
           </div>
 
           <div className="flex items-center gap-2">
@@ -780,24 +910,26 @@ export default function UpcycledStorePage() {
             </Button>
 
             <div className="flex items-center gap-1">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <Button
-                  key={page}
-                  variant={safeCurrentPage === page ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => {
-                    setCurrentPage(page)
-                    window.scrollTo({ top: 250, behavior: "smooth" })
-                  }}
-                  className={`h-8 w-8 rounded-none border-2 font-extrabold ${
-                    safeCurrentPage === page
-                      ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                      : "border-border hover:border-foreground"
-                  }`}
-                >
-                  {page}
-                </Button>
-              ))}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <Button
+                    key={page}
+                    variant={safeCurrentPage === page ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      setCurrentPage(page)
+                      window.scrollTo({ top: 250, behavior: "smooth" })
+                    }}
+                    className={`h-8 w-8 rounded-none border-2 font-extrabold ${
+                      safeCurrentPage === page
+                        ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                        : "border-border hover:border-foreground"
+                    }`}
+                  >
+                    {page}
+                  </Button>
+                )
+              )}
             </div>
 
             <Button
@@ -818,17 +950,21 @@ export default function UpcycledStorePage() {
 
       <section className="space-y-2 rounded-none border-2 border-border bg-muted p-6 text-xs">
         <div className="flex items-center gap-1.5 font-bold text-foreground">
-          <Sparkles className="size-4 fill-primary text-foreground" /> 100% Upcycled Clothing Traceability
+          <Sparkles className="size-4 fill-primary text-foreground" /> 100%
+          Upcycled Clothing Traceability
         </div>
         <p className="leading-relaxed text-muted-foreground">
           When you buy upcycled clothing on Recyclo, you can click into its{" "}
-          <b>Traceability Story</b> tab to inspect the exact processing batch code (e.g. <b>PB1024</b>), showing how old discarded garments collected from households were sanitized, reconstructed, and converted into wearable fashion.
+          <b>Traceability Story</b> tab to inspect the exact processing batch
+          code (e.g. <b>PB1024</b>), showing how old discarded garments
+          collected from households were sanitized, reconstructed, and converted
+          into wearable fashion.
         </p>
       </section>
 
       {/* FLOATING BACK TO TOP BUTTON */}
       {showBackToTop && (
-        <div className="fixed bottom-6 right-6 z-50 transition-all duration-300">
+        <div className="fixed right-6 bottom-6 z-50 transition-all duration-300">
           <Button
             onClick={scrollToTop}
             size="icon"
@@ -840,5 +976,19 @@ export default function UpcycledStorePage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function UpcycledStorePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-12 text-center text-xs font-semibold text-muted-foreground">
+          Loading upcycled store...
+        </div>
+      }
+    >
+      <UpcycledStoreContent />
+    </Suspense>
   )
 }
